@@ -23,7 +23,7 @@ float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
 int PID_value = 0;
-bool butt_naik = false, butt_turun = false;
+bool buttUpFlag = false, buttDownFlag = false;
 
 
 //PID constants
@@ -121,14 +121,14 @@ void loop() {
 /*==================================================================
                               CHANGE VAL
   ===================================================================*/
-  if(butt_naik == true){
+  if(buttUpFlag == true){
     set_temperature++;
-    butt_naik = false;
+    buttUpFlag = false;
     delay(100);
   }
-  if(butt_turun == true){
+  if(buttDownFlag == true){
     set_temperature--;
-    butt_turun = false;
+    buttDownFlag = false;
     delay(100);
   }
 
