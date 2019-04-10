@@ -23,28 +23,45 @@ float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
 int PID_value = 0;
+bool butt_naik = false, butt_turun = false;
+
 
 //PID constants
 int kp = 30, ki = 0, kd = 0;  //30  0 0
 int PID_p = 0, PID_i = 0, PID_d = 0;
 
+//button
+#define buttUp    11    //PB3 PCINT3  PCIE0
+#define buttDown  10    //PB2 PCINT2
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
-  thermocouple = new MAX6675_Thermocouple(
-    SCK_PIN, CS_PIN, SO_PIN,
-    READINGS_NUMBER, DELAY_TIME
-  );
-//  thermocouple = new MAX6675_Thermocouple(SCK_PIN, CS_PIN, SO_PIN);
+  // Serial.begin(9600);
+  // thermocouple = new MAX6675_Thermocouple(
+  //   SCK_PIN, CS_PIN, SO_PIN,
+  //   READINGS_NUMBER, DELAY_TIME
+  // );
+  thermocouple = new MAX6675_Thermocouple(SCK_PIN, CS_PIN, SO_PIN);
 
+  // register button
+  PCICR |= (1 << PCIE0);
+  PCMSK0 |= (1 << PCINT2) | (1 << PCINT3);
   pinMode(PWM_pin,OUTPUT);
-  
+
   // pin 3 and 11 PWM frequency of 928.5 Hz
   TCCR2B = TCCR2B & B11111000 | 0x03;
 
   lcd.init();
   lcd.backlight();
+  lcd.setCursor(2,0);
+  lcd.print("PLEASE WAIT!!");
+  delay(1500);
+  lcd.clear();
+  lcd.setCursor(2,0);
+  lcd.print("SYSTEM READY");
+  delay(1000);
+  lcd.clear();
+
   Time = millis();
 }
 
@@ -65,10 +82,8 @@ void loop() {
   PID_p = kp * PID_error;
   //Serial.println(PID_p);
 
-  //calculate Ingtegral value in a range on +-3
-  if(-3 < PID_error <3){
-    PID_i = PID_i + (ki * PID_error);
-  }
+  //calculate Ingtegral value
+  PID_i = PID_i + (ki * PID_error);
   //Serial.println(PID_i);
 
   //calculate Derivative value
@@ -92,9 +107,6 @@ void loop() {
   if(PID_value > 255){
     PID_value = 255;
   }
-  // else if(PID_value > 255){
-  //   PID_value = 255;
-  // }
 
 /*==================================================================
                           SIGNAL TO HEATER
@@ -106,8 +118,17 @@ void loop() {
   ===================================================================*/
   previous_error = PID_error;
 
-
-
+/*==================================================================
+                              CHANGE VAL
+  ===================================================================*/
+  if(butt_naik == true){
+    set_temperature++;
+    but_naik = false;
+  }
+  if(butt_turun == true){
+    set_temperature++;
+    but_naik = false;
+  }
 
 /*==================================================================
                               TO LCD
@@ -123,7 +144,6 @@ void loop() {
   lcd.print("R:");
   lcd.setCursor(11,1);
   lcd.print(suhu,1);
-  
-  // delay(300);
-  delay(150);
+
+  delay(300);
 }
