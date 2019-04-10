@@ -123,11 +123,13 @@ void loop() {
   ===================================================================*/
   if(butt_naik == true){
     set_temperature++;
-    but_naik = false;
+    butt_naik = false;
+    delay(100);
   }
   if(butt_turun == true){
-    set_temperature++;
-    but_naik = false;
+    set_temperature--;
+    butt_turun = false;
+    delay(100);
   }
 
 /*==================================================================
