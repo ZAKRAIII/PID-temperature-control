@@ -24,7 +24,7 @@ float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
 int PID_value = 0;//INI BUAT APA
-bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false;
+bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false, eepromFlag = false;
 int menu = 0;
 
 //PID constants
@@ -68,26 +68,26 @@ void setup() {
       EEPROM.write(5, ki);
       EEPROM.write(7, kd);
       while(!false){
-        lcd.setCursor(0,0);
-        lcd.print("--PLEASE RESTART--");
-      }      
+        lcd.setCursor(1,1);
+        lcd.print("-PLEASE RESTART-");
+      }
     }
   }
-  
+
   set_temperature = EEPROM.read(1);
   kp = EEPROM.read(3);
   ki = EEPROM.read(5);
   kd = EEPROM.read(7);
-  
+
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
-//  delay(1500);
+  delay(1500);
   lcd.clear();
   lcd.setCursor(2,0);
   lcd.print("SYSTEM READY");
   delay(1000);
   lcd.clear();
-  
+
   Time = millis();
 }
 
@@ -149,14 +149,24 @@ void loop() {
     menu++;
     delay(100);
   }
+
   if(menu > 3){
     menu = 0;
+    eepromFlag = true;
+  }
+
+  if(eepromFlag == true){
     EEPROM.write(1, set_temperature);
     EEPROM.write(3, kp);
     EEPROM.write(5, ki);
     EEPROM.write(7, kd);
+    eepromFlag = false;
+    lcd.clear();
+    lcd.setCursor(2,0);
+    lcd.print("eeprom writed");
+    delay(700);
   }
-  
+
   if (menu == 0){
   /*==================================================================
                                 CHANGE VAL TEMP
@@ -172,9 +182,6 @@ void loop() {
       delay(100);
     }
 
-  /*==================================================================
-                                TO LCD
-    ===================================================================*/
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("PID TEMP control");
@@ -187,7 +194,7 @@ void loop() {
     lcd.setCursor(11,1);
     lcd.print(suhu,1);
   }
-  
+
   if (menu == 1){
     if(buttUpFlag == true){
       kp++;
@@ -206,7 +213,7 @@ void loop() {
       lcd.print(kp);
       // last_kp = kp;
   }
-  
+
   if (menu == 2){
     if(buttUpFlag == true){
       ki = ki + 0.2;
@@ -224,7 +231,7 @@ void loop() {
       lcd.setCursor(5,1);
       lcd.print(ki);
   }
-  
+
   if (menu == 3){
     if(buttUpFlag == true){
       kd++;
