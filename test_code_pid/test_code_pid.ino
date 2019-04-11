@@ -63,10 +63,10 @@ void setup() {
     while(1){
       lcd.print("reset data log");
       delay(700);
-      EEPROM.write(1, set_temperature);
-      EEPROM.write(3, kp);
-      EEPROM.write(5, ki);
-      EEPROM.write(7, kd);
+      // EEPROM.put(1, set_temperature);
+      // EEPROM.put(3, kp);
+      EEPROM.put(5, ki);
+      // EEPROM.put(7, kd);
       while(!false){
         lcd.setCursor(1,1);
         lcd.print("-PLEASE RESTART-");
@@ -74,10 +74,10 @@ void setup() {
     }
   }
 
-  set_temperature = EEPROM.read(1);
-  kp = EEPROM.read(3);
+  // set_temperature = EEPROM.read(1);
+  // kp = EEPROM.read(3);
   ki = EEPROM.read(5);
-  kd = EEPROM.read(7);
+  // kd = EEPROM.read(7);
 
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
@@ -156,10 +156,11 @@ void loop() {
   }
 
   if(eepromFlag == true){
-    EEPROM.write(1, set_temperature);
-    EEPROM.write(3, kp);
-    EEPROM.write(5, ki);
-    EEPROM.write(7, kd);
+    // EEPROM.put(1, set_temperature);
+    // EEPROM.put(3, kp);
+
+    EEPROM.put(5, ki);
+    // EEPROM.put(7, kd);
     eepromFlag = false;
     lcd.clear();
     lcd.setCursor(2,0);
