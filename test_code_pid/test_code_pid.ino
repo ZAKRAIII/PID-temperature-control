@@ -1,6 +1,7 @@
 #include <MAX6675_Thermocouple.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
 
 #define SCK_PIN 5
 #define CS_PIN 7
@@ -57,6 +58,27 @@ void setup() {
 
   lcd.init();
   lcd.backlight();
+
+  if(digitalRead(buttSel)==HIGH){
+    while(1){
+      lcd.print("reset data log");
+      delay(700);
+      EEPROM.write(1, set_temperature);
+      EEPROM.write(3, kp);
+      EEPROM.write(5, ki);
+      EEPROM.write(7, kd);
+      while(!false){
+        lcd.setCursor(0,0);
+        lcd.print("--PLEASE RESTART--");
+      }      
+    }
+  }
+  
+  set_temperature = EEPROM.read(1);
+  kp = EEPROM.read(3);
+  ki = EEPROM.read(5);
+  kd = EEPROM.read(7);
+  
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
 //  delay(1500);
@@ -65,7 +87,7 @@ void setup() {
   lcd.print("SYSTEM READY");
   delay(1000);
   lcd.clear();
-
+  
   Time = millis();
 }
 
@@ -129,7 +151,12 @@ void loop() {
   }
   if(menu > 3){
     menu = 0;
+    EEPROM.write(1, set_temperature);
+    EEPROM.write(3, kp);
+    EEPROM.write(5, ki);
+    EEPROM.write(7, kd);
   }
+  
   if (menu == 0){
   /*==================================================================
                                 CHANGE VAL TEMP
@@ -160,6 +187,7 @@ void loop() {
     lcd.setCursor(11,1);
     lcd.print(suhu,1);
   }
+  
   if (menu == 1){
     if(buttUpFlag == true){
       kp++;
@@ -178,6 +206,7 @@ void loop() {
       lcd.print(kp);
       // last_kp = kp;
   }
+  
   if (menu == 2){
     if(buttUpFlag == true){
       ki = ki + 0.2;
@@ -195,6 +224,7 @@ void loop() {
       lcd.setCursor(5,1);
       lcd.print(ki);
   }
+  
   if (menu == 3){
     if(buttUpFlag == true){
       kd++;
