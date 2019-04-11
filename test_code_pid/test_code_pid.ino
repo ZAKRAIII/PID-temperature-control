@@ -22,22 +22,21 @@ float suhu = 0.0;
 float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
-int PID_value = 0;//INI BUAT APA
-bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false;
-int menu = 0;
+int PID_value = 0;
+bool buttUpFlag = false, buttDownFlag = false;
+
 
 //PID constants
-float kp = 30.0, ki = 0.0, kd = 0.0;  //30  0 0
-float PID_p = 0, PID_i = 0, PID_d = 0;
-// int last_kp = 0;
+int kp = 30, ki = 0, kd = 0;  //30  0 0
+int PID_p = 0, PID_i = 0, PID_d = 0;
 
 //button
 #define buttUp    11    //PB3 PCINT3  PCIE0
 #define buttDown  10    //PB2 PCINT2
-#define buttSel   9     //PB1 PCINT1
 
 void setup() {
-  Serial.begin(9600);
+  // put your setup code here, to run once:
+  // Serial.begin(9600);
   // thermocouple = new MAX6675_Thermocouple(
   //   SCK_PIN, CS_PIN, SO_PIN,
   //   READINGS_NUMBER, DELAY_TIME
@@ -46,20 +45,17 @@ void setup() {
 
   // register button
   PCICR |= (1 << PCIE0);
-  PCMSK0 |= (1 << PCINT2) | (1 << PCINT3) | (1 << PCINT1);
-  pinMode(buttUp, INPUT);
-  pinMode(buttDown, INPUT);
-  pinMode(buttSel, INPUT);
+  PCMSK0 |= (1 << PCINT2) | (1 << PCINT3);
   pinMode(PWM_pin,OUTPUT);
 
   // pin 3 and 11 PWM frequency of 928.5 Hz
-  TCCR2B = TCCR2B & 0b11111000 | 0b00000011;  //0x03;
+  TCCR2B = TCCR2B & B11111000 | 0x03;
 
   lcd.init();
   lcd.backlight();
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
-//  delay(1500);
+  delay(1500);
   lcd.clear();
   lcd.setCursor(2,0);
   lcd.print("SYSTEM READY");
@@ -74,13 +70,13 @@ void loop() {
                         READ REAL TEMPERATURE
   ===================================================================*/
   suhu = thermocouple->readCelsius();
-  // Serial.println(suhu);
+  Serial.println(suhu);
 
 /*==================================================================
                            PID VALUE CALC
   ===================================================================*/
   PID_error = set_temperature - suhu;
-  // Serial.println(PID_error);
+  Serial.println(PID_error);
 
   //calculate Proportional value value
   PID_p = kp * PID_error;
@@ -122,95 +118,34 @@ void loop() {
   ===================================================================*/
   previous_error = PID_error;
 
-  if(buttSelFlag == true){
-    buttSelFlag = false;
-    menu++;
+/*==================================================================
+                              CHANGE VAL
+  ===================================================================*/
+  if(buttUpFlag == true){
+    set_temperature++;
+    buttUpFlag = false;
     delay(100);
   }
-  if(menu > 3){
-    menu = 0;
+  if(buttDownFlag == true){
+    set_temperature--;
+    buttDownFlag = false;
+    delay(100);
   }
-  if (menu == 0){
-  /*==================================================================
-                                CHANGE VAL TEMP
-    ===================================================================*/
-    if(buttUpFlag == true){
-      set_temperature++;
-      buttUpFlag = false;
-      delay(100);
-    }
-    if(buttDownFlag == true){
-      set_temperature--;
-      buttDownFlag = false;
-      delay(100);
-    }
 
-  /*==================================================================
-                                TO LCD
-    ===================================================================*/
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("PID TEMP control");
-    lcd.setCursor(0,1);
-    lcd.print("S:");
-    lcd.setCursor(2,1);
-    lcd.print(set_temperature,1);
-    lcd.setCursor(9,1);
-    lcd.print("R:");
-    lcd.setCursor(11,1);
-    lcd.print(suhu,1);
-  }
-  if (menu == 1){
-    if(buttUpFlag == true){
-      kp++;
-      buttUpFlag = false;
-      delay(100);
-    }
-    if(buttDownFlag == true){
-      kp--;
-      buttDownFlag = false;
-      delay(100);
-    }
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Set   P  value  ");
-      lcd.setCursor(5,1);
-      lcd.print(kp);
-      // last_kp = kp;
-  }
-  if (menu == 2){
-    if(buttUpFlag == true){
-      ki = ki + 0.2;
-      buttUpFlag = false;
-      delay(100);
-    }
-    if(buttDownFlag == true){
-      ki = ki - 0.2;
-      buttDownFlag = false;
-      delay(100);
-    }
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Set   I  value  ");
-      lcd.setCursor(5,1);
-      lcd.print(ki);
-  }
-  if (menu == 3){
-    if(buttUpFlag == true){
-      kd++;
-      buttUpFlag = false;
-      delay(100);
-    }
-    if(buttDownFlag == true){
-      kd--;
-      buttDownFlag = false;
-      delay(100);
-    }
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Set   D  value  ");
-      lcd.setCursor(5,1);
-      lcd.print(kd);
-  }
+/*==================================================================
+                              TO LCD
+  ===================================================================*/
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("PID TEMP control");
+  lcd.setCursor(0,1);
+  lcd.print("S:");
+  lcd.setCursor(2,1);
+  lcd.print(set_temperature,1);
+  lcd.setCursor(9,1);
+  lcd.print("R:");
+  lcd.setCursor(11,1);
+  lcd.print(suhu,1);
+
   delay(300);
 }
