@@ -16,14 +16,14 @@ LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to
 int PWM_pin = 3;
 
 // Set Point
-float set_temperature = 100;
+float set_temperature = 75;
 
 //Variables
 float suhu = 0.0;
 float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
-int PID_value = 0;//INI BUAT APA
+int PID_value = 0;
 bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false, eepromFlag = false;
 int menu = 0;
 
@@ -54,7 +54,7 @@ void setup() {
   pinMode(PWM_pin,OUTPUT);
 
   // pin 3 and 11 PWM frequency of 928.5 Hz
-  TCCR2B = TCCR2B & 0b11111000 | 0b00000011;  //0x03;
+  TCCR2B = TCCR2B & 0b11111000 | 0x03;  //0x03;
 
   lcd.init();
   lcd.backlight();
