@@ -12,7 +12,7 @@ MAX6675_Thermocouple* thermocouple = NULL;
 LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to 0x27 if it dosn't work.
 
 //Pins
-int PWM_pin = 3;
+int PWM_pin = 5;
 
 // Set Point
 float set_temperature = 75;
@@ -55,7 +55,7 @@ void setup() {
   lcd.backlight();
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
-  delay(1500);
+//  delay(1500);
   lcd.clear();
   lcd.setCursor(2,0);
   lcd.print("SYSTEM READY");
