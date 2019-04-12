@@ -3,11 +3,11 @@
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 
-#define SCK_PIN 5
-#define CS_PIN 7
-#define SO_PIN 6
+#define SCK_PIN         4
+#define CS_PIN          3
+#define SO_PIN          2
 #define READINGS_NUMBER 7
-#define DELAY_TIME 20
+#define DELAY_TIME      20
 
 MAX6675_Thermocouple* thermocouple = NULL;
 LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to 0x27 if it dosn't work.
