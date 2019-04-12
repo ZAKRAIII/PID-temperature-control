@@ -15,7 +15,7 @@ LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to
 int PWM_pin = 3;
 
 // Set Point
-float set_temperature = 100;
+float set_temperature = 75;
 
 //Variables
 float suhu = 0.0;
