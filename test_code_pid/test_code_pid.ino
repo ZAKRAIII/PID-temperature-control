@@ -55,7 +55,7 @@ void setup() {
   // pin 3 and 11 PWM frequency of 928.5 Hz
   TCCR2B = TCCR2B & 0b11111000 | 0x03;  //0x03;
 
-  analogWrite(PWM_pin, 255-PID_value);
+  analogWrite(PWM_pin, 255);
 
   lcd.init();
   lcd.backlight();
