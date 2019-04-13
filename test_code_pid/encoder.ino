@@ -1,14 +1,11 @@
-ISR(PCINT0_vect){
-  if (PINB & B00001000){
-    buttUpFlag = true;
-  }
-
-  if(PINB & B00000100){
-    buttDownFlag = true;
-  }
-
-  if(PINB & B00000010){
+ISR(PCINT1_vect){
+  if(PINC & 0b00000001){
     buttSelFlag = true;
   }
-
+  if(PINC & 0b00000010){
+    buttUpFlag = true;
+  }
+  if(PINC & 0b00000100){
+    buttDownFlag = true;
+  }
 }

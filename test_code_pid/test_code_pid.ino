@@ -3,9 +3,9 @@
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 
-#define SCK_PIN         4
-#define CS_PIN          3
-#define SO_PIN          2
+#define SCK_PIN         6
+#define CS_PIN          5
+#define SO_PIN          4
 #define READINGS_NUMBER 7
 #define DELAY_TIME      20
 
@@ -14,7 +14,6 @@ LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to
 
 //Pins
 int PWM_pin = 3;
-
 // Set Point
 float set_temperature = 75;
 
@@ -28,14 +27,14 @@ bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false, eepromFlag = 
 int menu = 0;
 
 //PID constants
-float kp = 30.0, ki = 0.0, kd = 0.0;  //30  0 0
+float kp = 30.0, ki = 0.2, kd = 5;  //30  0 0
 float PID_p = 0, PID_i = 0, PID_d = 0;
 // int last_kp = 0;
 
 //button
-#define buttUp    11    //PB3 PCINT3  PCIE0
-#define buttDown  10    //PB2 PCINT2
-#define buttSel   9     //PB1 PCINT1
+#define buttUp    A1    //PC1 PCINT9  PCIE1
+#define buttDown  A2    //PC2 PCINT10 PCIE1
+#define buttSel   A0    //PC0 PCINT8  PCIE1
 
 void setup() {
   Serial.begin(9600);
@@ -46,8 +45,9 @@ void setup() {
   thermocouple = new MAX6675_Thermocouple(SCK_PIN, CS_PIN, SO_PIN);
 
   // register button
-  PCICR |= (1 << PCIE0);
-  PCMSK0 |= (1 << PCINT2) | (1 << PCINT3) | (1 << PCINT1);
+  PCICR   |= (1 << PCIE1) ;
+  PCMSK1  |= (1 << PCINT8) | (1 << PCINT9) | (1 << PCINT10);
+
   pinMode(buttUp, INPUT);
   pinMode(buttDown, INPUT);
   pinMode(buttSel, INPUT);
@@ -56,28 +56,30 @@ void setup() {
   // pin 3 and 11 PWM frequency of 928.5 Hz
   TCCR2B = TCCR2B & 0b11111000 | 0x03;  //0x03;
 
+  analogWrite(PWM_pin, 255-PID_value);
+
   lcd.init();
   lcd.backlight();
 
-  if(digitalRead(buttSel)==HIGH){
-    while(1){
-      lcd.print("reset data log");
-      delay(700);
-      EEPROM.write(1, set_temperature);
-      EEPROM.write(3, kp);
-      EEPROM.write(5, ki);
-      EEPROM.write(7, kd);
-      while(!false){
-        lcd.setCursor(1,1);
-        lcd.print("-PLEASE RESTART-");
-      }
-    }
-  }
+  // if(digitalRead(buttSel)==HIGH){
+  //   while(1){
+  //     lcd.print("reset data log");
+  //     delay(700);
+  //     EEPROM.write(1, set_temperature);
+  //     EEPROM.write(3, kp);
+  //     EEPROM.write(5, ki);
+  //     EEPROM.write(7, kd);
+  //     while(!false){
+  //       lcd.setCursor(1,1);
+  //       lcd.print("-PLEASE RESTART-");
+  //     }
+  //   }
+  // }
 
-  set_temperature = EEPROM.read(1);
-  kp = EEPROM.read(3);
-  ki = EEPROM.read(5);
-  kd = EEPROM.read(7);
+  // set_temperature = EEPROM.read(1);
+  // kp = EEPROM.read(3);
+  // ki = EEPROM.read(5);
+  // kd = EEPROM.read(7);
 
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
@@ -96,13 +98,13 @@ void loop() {
                         READ REAL TEMPERATURE
   ===================================================================*/
   suhu = thermocouple->readCelsius();
-  // Serial.println(suhu);
+//   Serial.println(suhu);
 
 /*==================================================================
                            PID VALUE CALC
   ===================================================================*/
   PID_error = set_temperature - suhu;
-  // Serial.println(PID_error);
+//   Serial.println(PID_error);
 
   //calculate Proportional value value
   PID_p = kp * PID_error;
@@ -133,6 +135,7 @@ void loop() {
   if(PID_value > 255){
     PID_value = 255;
   }
+  Serial.println(PID_value);
 
 /*==================================================================
                           SIGNAL TO HEATER
@@ -152,20 +155,20 @@ void loop() {
 
   if(menu > 3){
     menu = 0;
-    eepromFlag = true;
+    // eepromFlag = true;
   }
 
-  if(eepromFlag == true){
-    EEPROM.write(1, set_temperature);
-    EEPROM.write(3, kp);
-    EEPROM.write(5, ki);
-    EEPROM.write(7, kd);
-    eepromFlag = false;
-    lcd.clear();
-    lcd.setCursor(2,0);
-    lcd.print("eeprom writed");
-    delay(700);
-  }
+  // if(eepromFlag == true){
+  //   EEPROM.write(1, set_temperature);
+  //   EEPROM.write(3, kp);
+  //   EEPROM.write(5, ki);
+  //   EEPROM.write(7, kd);
+  //   eepromFlag = false;
+  //   lcd.clear();
+  //   lcd.setCursor(2,0);
+  //   lcd.print("eeprom writed");
+  //   delay(700);
+  // }
 
   if (menu == 0){
   /*==================================================================
