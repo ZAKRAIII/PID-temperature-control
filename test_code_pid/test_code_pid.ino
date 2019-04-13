@@ -23,13 +23,12 @@ float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
 int PID_value = 0;
-bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false, eepromFlag = false;
+bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false;
 int menu = 0;
 
 //PID constants
-float kp = 30.0, ki = 0.2, kd = 5;  //30  0 0
+float kp = 30.0, ki = 0.2, kd = 5;
 float PID_p = 0, PID_i = 0, PID_d = 0;
-// int last_kp = 0;
 
 //button
 #define buttUp    A1    //PC1 PCINT9  PCIE1
@@ -37,8 +36,7 @@ float PID_p = 0, PID_i = 0, PID_d = 0;
 #define buttSel   A0    //PC0 PCINT8  PCIE1
 
 void setup() {
-  // put your setup code here, to run once:
-  // Serial.begin(9600);
+  Serial.begin(9600);
   // thermocouple = new MAX6675_Thermocouple(
   //   SCK_PIN, CS_PIN, SO_PIN,
   //   READINGS_NUMBER, DELAY_TIME
@@ -61,27 +59,6 @@ void setup() {
 
   lcd.init();
   lcd.backlight();
-
-  // if(digitalRead(buttSel)==HIGH){
-  //   while(1){
-  //     lcd.print("reset data log");
-  //     delay(700);
-  //     EEPROM.write(1, set_temperature);
-  //     EEPROM.write(3, kp);
-  //     EEPROM.write(5, ki);
-  //     EEPROM.write(7, kd);
-  //     while(!false){
-  //       lcd.setCursor(1,1);
-  //       lcd.print("-PLEASE RESTART-");
-  //     }
-  //   }
-  // }
-
-  // set_temperature = EEPROM.read(1);
-  // kp = EEPROM.read(3);
-  // ki = EEPROM.read(5);
-  // kd = EEPROM.read(7);
-
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!!");
   delay(1500);
@@ -151,28 +128,15 @@ void loop() {
 /*==================================================================
                               CHANGE VAL
   ===================================================================*/
-  if(buttUpFlag == true){
-    set_temperature++;
-    buttUpFlag = false;
+  if(buttSelFlag == true){
+    menu++;
+    buttSelFlag = false;
     delay(100);
   }
 
   if(menu > 3){
     menu = 0;
-    // eepromFlag = true;
   }
-
-  // if(eepromFlag == true){
-  //   EEPROM.write(1, set_temperature);
-  //   EEPROM.write(3, kp);
-  //   EEPROM.write(5, ki);
-  //   EEPROM.write(7, kd);
-  //   eepromFlag = false;
-  //   lcd.clear();
-  //   lcd.setCursor(2,0);
-  //   lcd.print("eeprom writed");
-  //   delay(700);
-  // }
 
   if (menu == 0){
   /*==================================================================
