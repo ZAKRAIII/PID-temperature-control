@@ -3,9 +3,9 @@
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 
-#define SCK_PIN         6
+#define SCK_PIN         4
 #define CS_PIN          5
-#define SO_PIN          4
+#define SO_PIN          2
 #define READINGS_NUMBER 7
 #define DELAY_TIME      20
 
@@ -76,7 +76,7 @@ void loop() {
                         READ REAL TEMPERATURE
   ===================================================================*/
   suhu = thermocouple->readCelsius();
-//   Serial.println(suhu);
+  Serial.println(suhu);
 
 /*==================================================================
                            PID VALUE CALC
@@ -113,7 +113,7 @@ void loop() {
   if(PID_value > 255){
     PID_value = 255;
   }
-  Serial.println(PID_value);
+//  Serial.println(PID_value);
 
 /*==================================================================
                           SIGNAL TO HEATER
