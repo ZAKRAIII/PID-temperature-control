@@ -6,8 +6,8 @@
 #define SCK_PIN         4
 #define CS_PIN          5
 #define SO_PIN          2
-#define READINGS_NUMBER 7
-#define DELAY_TIME      20
+// #define READINGS_NUMBER 7
+// #define DELAY_TIME      15
 
 MAX6675_Thermocouple* thermocouple = NULL;
 LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to 0x27 if it dosn't work.
@@ -15,14 +15,14 @@ LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to
 //Pins
 int PWM_pin = 3;
 // Set Point
-float set_temperature = 75;
+float set_temperature = 100;
 
 //Variables
 float suhu = 0.0;
 float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
-int PID_value = 0;
+int PID_value = 0, signal_value = 0;
 bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false;
 int menu = 0;
 
@@ -36,15 +36,15 @@ struct EEPROM_PID{
 };
 int add = 0;
 //PID constants
-float kp = 30.0, ki = 0.2, kd = 5;
+float kp = 13.0, ki = 0.2, kd = 0;
 float PID_p = 0, PID_i = 0, PID_d = 0;
 
 void setup() {
-  Serial.begin(9600);
-  // thermocouple = new MAX6675_Thermocouple(
-  //   SCK_PIN, CS_PIN, SO_PIN,
-  //   READINGS_NUMBER, DELAY_TIME
-  // );
+  Serial.begin(57600);
+//  thermocouple = new MAX6675_Thermocouple(
+//   SCK_PIN, CS_PIN, SO_PIN,
+//   READINGS_NUMBER, DELAY_TIME
+//  );
   thermocouple = new MAX6675_Thermocouple(SCK_PIN, CS_PIN, SO_PIN);
 
   // register button
@@ -74,11 +74,13 @@ void setup() {
       lcd.clear();
       lcd.setCursor(1,0);
       lcd.print("-EEPROM READ-");
+      delay(500);
       EEPROM_PID_READ();
       while(!false){
         lcd.clear();
         lcd.setCursor(1,0);
         lcd.print("-PLEASE RESTART-");
+        while(!!true);
       }
     }
   }
@@ -97,21 +99,17 @@ void loop() {
                         READ REAL TEMPERATURE
   ===================================================================*/
   suhu = thermocouple->readCelsius();
-  Serial.println(suhu);
 
 /*==================================================================
                            PID VALUE CALC
   ===================================================================*/
   PID_error = set_temperature - suhu;
-//   Serial.println(PID_error);
 
   //calculate Proportional value value
   PID_p = kp * PID_error;
-  //Serial.println(PID_p);
 
   //calculate Ingtegral value
   PID_i = PID_i + (ki * PID_error);
-  //Serial.println(PID_i);
 
   //calculate Derivative value
   //For derivative we need real time to calculate speed change rate
@@ -120,12 +118,9 @@ void loop() {
   elapsedTime = (Time - timePrev) / 1000;
 
   PID_d = kd * ((PID_error - previous_error) / elapsedTime);
-  //Serial.println(PID_d);
 
   //total PID value, sum of P + I + D
   PID_value = PID_p + PID_i + PID_d;
-    // PID_value = PID_p /*+ PID_i*/ + PID_d;
-  //Serial.println(PID_value);
 
   //define PWM range between 0 and 255, for maximum power
   if(PID_value < 0){
@@ -134,18 +129,19 @@ void loop() {
   if(PID_value > 255){
     PID_value = 255;
   }
-//  Serial.println(PID_value);
 
 /*==================================================================
                           SIGNAL TO HEATER
   ===================================================================*/
-  analogWrite(PWM_pin, 255-PID_value);
+  signal_value = 255-PID_value;
+  analogWrite(PWM_pin, signal_value);
 
 /*==================================================================
                        VALUE FOR NEXT PID CALC
   ===================================================================*/
   previous_error = PID_error;
 
+  debug();
 
   if(buttSelFlag == true){
     menu++;
@@ -159,6 +155,7 @@ void loop() {
     lcd.clear();
     lcd.setCursor(2,0);
     lcd.print("EEPROM WRITE");
+    delay(300);
   }
 
   if (menu == 0){
