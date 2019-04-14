@@ -36,7 +36,7 @@ struct EEPROM_PID{
 };
 int add = 0;
 //PID constants
-float kp = 13.0, ki = 0.2, kd = 0;
+float kp = 10.0, ki = 0.3, kd = 2;
 float PID_p = 0, PID_i = 0, PID_d = 0;
 
 void setup() {
@@ -68,23 +68,6 @@ void setup() {
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!");
   delay(1500);
-
-  if(buttSelFlag == true){
-    while(1){
-      lcd.clear();
-      lcd.setCursor(1,0);
-      lcd.print("-EEPROM READ-");
-      delay(500);
-      EEPROM_PID_READ();
-      while(!false){
-        lcd.clear();
-        lcd.setCursor(1,0);
-        lcd.print("-PLEASE RESTART-");
-        while(!!true);
-      }
-    }
-  }
-
   lcd.clear();
   lcd.setCursor(2,0);
   lcd.print("SYSTEM READY");
@@ -151,11 +134,6 @@ void loop() {
 
   if(menu > 3){
     menu = 0;
-    EEPROM_PID_WRITE();
-    lcd.clear();
-    lcd.setCursor(2,0);
-    lcd.print("EEPROM WRITE");
-    delay(300);
   }
 
   if (menu == 0){
@@ -207,12 +185,12 @@ void loop() {
 
   if (menu == 2){
     if(buttUpFlag == true){
-      ki = ki + 0.2;
+      ki += 0.1;
       buttUpFlag = false;
       delay(100);
     }
     if(buttDownFlag == true){
-      ki = ki - 0.2;
+      ki -= 0.1;
       buttDownFlag = false;
       delay(100);
     }
