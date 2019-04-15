@@ -1,4 +1,4 @@
-#include <MAX6675_Thermocouple.h>
+ #include <MAX6675_Thermocouple.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
@@ -14,6 +14,7 @@ LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to
 
 //Pins
 int PWM_pin = 3;
+
 // Set Point
 float set_temperature = 100;
 
@@ -31,12 +32,9 @@ int menu = 0;
 #define buttDown  A2    //PC2 PCINT10 PCIE1
 #define buttSel   A0    //PC0 PCINT8  PCIE1
 
-struct EEPROM_PID{
-  float EE_TEMP, EE_P, EE_I, EE_D;
-};
-int add = 0;
 //PID constants
-float kp = 10.0, ki = 0.3, kd = 2;
+//from 10  0.035  40
+float kp = 10, ki = 0.035, kd = 40;
 float PID_p = 0, PID_i = 0, PID_d = 0;
 
 void setup() {
@@ -61,18 +59,21 @@ void setup() {
 
   analogWrite(PWM_pin, 255);
 
-  EEPROM_PID_WRITE();
-
   lcd.init();
   lcd.backlight();
   lcd.setCursor(2,0);
   lcd.print("PLEASE WAIT!");
-  delay(1500);
+  delay(700);
   lcd.clear();
   lcd.setCursor(2,0);
   lcd.print("SYSTEM READY");
-  delay(1000);
+  delay(600);
   lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("PID TEMP Control");
+  lcd.setCursor(0,1);
+  lcd.print(" KELOMPOK - 2 ");
+  delay(600);
 
   Time = millis();
 }
@@ -93,6 +94,7 @@ void loop() {
 
   //calculate Ingtegral value
   PID_i = PID_i + (ki * PID_error);
+  
 
   //calculate Derivative value
   //For derivative we need real time to calculate speed change rate
@@ -125,6 +127,7 @@ void loop() {
   previous_error = PID_error;
 
   debug();
+//  ser_plot();
 
   if(buttSelFlag == true){
     menu++;
@@ -153,7 +156,7 @@ void loop() {
 
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("PID TEMP control");
+    lcd.print("PID TEMP Control");
     lcd.setCursor(0,1);
     lcd.print("S:");
     lcd.setCursor(2,1);
