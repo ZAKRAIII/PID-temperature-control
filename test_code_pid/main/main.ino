@@ -1,3 +1,4 @@
+#include <JC_Button.h>
 #include <MAX6675_Thermocouple.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -16,7 +17,7 @@ LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x3f. Change to
 int PWM_pin = 3;
 
 // Set Point
-float set_temperature = 100;
+float set_temperature = 175;
 
 //Variables
 float suhu = 0.0;
@@ -31,10 +32,15 @@ int menu = 0;
 #define buttUp    A1    //PC1 PCINT9  PCIE1
 #define buttDown  A2    //PC2 PCINT10 PCIE1
 #define buttSel   A0    //PC0 PCINT8  PCIE1
+#define buttRst   7
+
+Button myBtn(buttRst);
 
 //PID constants
-//from 10  0.035  40
-float kp = 10, ki = 0.030, kd = 40;
+//from zero           10  0.035  40
+//from minimum value  q
+float kp = 33, ki = 0.01, kd = 10;
+float fix_kp = 0.0, fix_ki = 0.0, fix_kd = 0.0, fix_set_temperature= 0.0;
 float PID_p = 0, PID_i = 0, PID_d = 0;
 
 void setup() {
@@ -59,6 +65,13 @@ void setup() {
 
   analogWrite(PWM_pin, 255);
 
+  myBtn.begin(); 
+  
+  fix_kp = kp;
+  fix_ki = ki;
+  fix_kd = kd;
+  fix_set_temperature = set_temperature;
+
   lcd.init();
   lcd.backlight();
   lcd.setCursor(2,0);
@@ -79,6 +92,24 @@ void setup() {
 }
 
 void loop() {
+  myBtn.read();
+  if(myBtn.wasPressed()){
+//    Serial.println("setP = " + String(set_temperature) + " P = " + String(kp) + " I = " + String(ki) + " D = " + String(kd) + " " );
+    lcd.clear();
+    lcd.setCursor(5,0);
+//    lcd.print("RESET");
+    set_temperature = fix_set_temperature;
+    kp = fix_kp;
+    ki = fix_ki;
+    kd = fix_kd;
+    PID_p = 0;
+    PID_i = 0;
+    PID_d = 0;
+    Time = millis();
+    
+    delay(300);
+    
+  }
   /*==================================================================
                         READ REAL TEMPERATURE
   ===================================================================*/
@@ -108,12 +139,18 @@ void loop() {
   PID_value = PID_p + PID_i + PID_d;
 
   //define PWM range between 0 and 255, for maximum power
+  if(PID_value < 50){
+    PID_value += 55;
+    Serial.println("++");
+  }
   if(PID_value < 0){
     PID_value = 0;
   }
   if(PID_value > 255){
     PID_value = 255;
   }
+  
+  
 
 /*==================================================================
                           SIGNAL TO HEATER
@@ -126,8 +163,8 @@ void loop() {
   ===================================================================*/
   previous_error = PID_error;
 
-  debug();
-//  ser_plot();
+//  debug();
+  ser_plot();
 
   if(buttSelFlag == true){
     menu++;
@@ -183,7 +220,6 @@ void loop() {
       lcd.print("Set   P  value  ");
       lcd.setCursor(5,1);
       lcd.print(kp);
-      // last_kp = kp;
   }
 
   if (menu == 2){
