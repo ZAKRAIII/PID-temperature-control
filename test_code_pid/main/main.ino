@@ -1,4 +1,4 @@
- #include <MAX6675_Thermocouple.h>
+#include <MAX6675_Thermocouple.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
@@ -34,7 +34,7 @@ int menu = 0;
 
 //PID constants
 //from 10  0.035  40
-float kp = 10, ki = 0.035, kd = 40;
+float kp = 10, ki = 0.030, kd = 40;
 float PID_p = 0, PID_i = 0, PID_d = 0;
 
 void setup() {
