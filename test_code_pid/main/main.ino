@@ -24,9 +24,9 @@ float suhu = 0.0;
 float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
-int PID_value = 0, signal_value = 0, temp_hold = 52;
+int PID_value = 0, signal_value = 0, temp_hold = 0, temp_hold_0 = 52, temp_hold_1 = 70;
 bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false;
-int menu = 0;
+int menu = 0, flag_temp_hold = 0;
 
 //button
 #define buttUp    A1    //PC1 PCINT9  PCIE1
@@ -71,6 +71,7 @@ void setup() {
   fix_ki = ki;
   fix_kd = kd;
   fix_set_temperature = set_temperature;
+  temp_hold = temp_hold_0;
 
   lcd.init();
   lcd.backlight();
@@ -94,10 +95,27 @@ void setup() {
 void loop() {
   myBtn.read();
   if(myBtn.wasPressed()){
-    lcd.clear();
-    lcd.setCursor(5,0);
-    lcd.print("RESET");
-    set_temperature = fix_set_temperature;
+    flag_temp_hold++;
+    if(flag_temp_hold>1){
+      flag_temp_hold = 0;
+    }
+    if(flag_temp_hold == 1){
+      temp_hold = temp_hold_1;
+      lcd.clear();
+      lcd.print("temp_hold = " + String(temp_hold));
+      delay(400);
+    }
+    if(flag_temp_hold == 0){
+      temp_hold = temp_hold_0;
+      lcd.clear();
+      lcd.print("temp_hold = " + String(temp_hold));
+      delay(400);
+    }
+    
+    // lcd.clear();
+    // lcd.setCursor(5,0);
+    // lcd.print("RESET");
+    // set_temperature = fix_set_temperature;
     // kp = fix_kp;
     // ki = fix_ki;
     // kd = fix_kd;
@@ -162,8 +180,8 @@ void loop() {
   ===================================================================*/
   previous_error = PID_error;
 
-//  debug();
-  ser_plot();
+  debug();
+//  ser_plot();
 
   if(buttSelFlag == true){
     menu++;
