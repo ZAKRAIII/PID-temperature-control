@@ -65,8 +65,8 @@ void setup() {
 
   analogWrite(PWM_pin, 255);
 
-  myBtn.begin(); 
-  
+  myBtn.begin();
+
   fix_kp = kp;
   fix_ki = ki;
   fix_kd = kd;
@@ -94,21 +94,20 @@ void setup() {
 void loop() {
   myBtn.read();
   if(myBtn.wasPressed()){
-//    Serial.println("setP = " + String(set_temperature) + " P = " + String(kp) + " I = " + String(ki) + " D = " + String(kd) + " " );
     lcd.clear();
     lcd.setCursor(5,0);
-//    lcd.print("RESET");
+    lcd.print("RESET");
     set_temperature = fix_set_temperature;
-    kp = fix_kp;
-    ki = fix_ki;
-    kd = fix_kd;
-    PID_p = 0;
-    PID_i = 0;
-    PID_d = 0;
-    Time = millis();
-    
+    // kp = fix_kp;
+    // ki = fix_ki;
+    // kd = fix_kd;
+    // PID_p = 0;
+    // PID_i = 0;
+    // PID_d = 0;
+    // Time = millis();
+    //
     delay(300);
-    
+
   }
   /*==================================================================
                         READ REAL TEMPERATURE
@@ -125,7 +124,7 @@ void loop() {
 
   //calculate Ingtegral value
   PID_i = PID_i + (ki * PID_error);
-  
+
 
   //calculate Derivative value
   //For derivative we need real time to calculate speed change rate
@@ -149,8 +148,8 @@ void loop() {
   if(PID_value > 255){
     PID_value = 255;
   }
-  
-  
+
+
 
 /*==================================================================
                           SIGNAL TO HEATER
