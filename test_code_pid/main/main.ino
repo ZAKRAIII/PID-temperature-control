@@ -24,7 +24,7 @@ float suhu = 0.0;
 float PID_error = 0;
 float previous_error = 0;
 float elapsedTime, Time, timePrev;
-int PID_value = 0, signal_value = 0;
+int PID_value = 0, signal_value = 0, temp_hold = 52;
 bool buttUpFlag = false, buttDownFlag = false,buttSelFlag = false;
 int menu = 0;
 
@@ -39,7 +39,7 @@ Button myBtn(buttRst);
 //PID constants
 //from zero           10  0.035  40
 //from minimum value  q
-float kp = 33, ki = 0.01, kd = 10;
+float kp = 55, ki = 0.01, kd = 75;
 float fix_kp = 0.0, fix_ki = 0.0, fix_kd = 0.0, fix_set_temperature= 0.0;
 float PID_p = 0, PID_i = 0, PID_d = 0;
 
@@ -140,7 +140,7 @@ void loop() {
 
   //define PWM range between 0 and 255, for maximum power
   if(PID_value < 50){
-    PID_value += 55;
+    PID_value += temp_hold;
     Serial.println("++");
   }
   if(PID_value < 0){
